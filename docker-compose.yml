@@ -1,0 +1,40 @@
+version: '3'
+
+networks:
+  app-net:
+
+services:
+
+  php-apache:
+    build:
+      context: .
+      dockerfile: php-apache.dockerfile
+    container_name: php-apache
+    ports:
+      - 9898:80
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - ./default.conf:/etc/apache2/sites-enabled/000-default.conf
+    networks:
+      - app-net
+
+  composer:
+    image: composer:2.4.1
+    container_name: composer
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    networks:
+      - app-net
+
+  artisan:
+    build:
+      context: .
+      dockerfile: artisan.dockerfile
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    entrypoint: ['php', '/var/www/html/artisan']
+    networks:
+      - app-net
